@@ -53,8 +53,21 @@ def get_args():
   parser.add_argument('-w','--words',type=positive_int,default=2,help='The number of words used for generating the password(default 2)')
   parser.add_argument('-d','--digits',type=positive_int,default=4,help='The number of digits used for generating the password(default 4)')
   parser.add_argument('-s','--specials',type=positive_int,default=3,help='The number of special characters used for generating the password(default 3)')
+  parser.add_argument('-q','--quiet',action='store_true',default=False,help='Disables the strength analyzer part of the tool and only shows the generated password')
 
   return parser.parse_args()
+
+
+# Analyzes the given password in terms of strength
+# and in terms of how easy it it to brute force it
+def analyze_password(password):
+  strength,suggestion=test(password)
+  z_res=zxcvbn(password)
+
+  print('Passwordmeter score: %.5f' %strength)
+  print('Passwordsmeter suggesions: ', suggestion)
+  print('Zxcvbn strength:')
+  pprint(z_res)
 
 
 def main():
@@ -62,28 +75,13 @@ def main():
   args=get_args()
   pass_str=create_password(args.words,args.digits,args.specials)
 
-  strength,suggestion=test(pass_str)
-  z_res=zxcvbn(pass_str)
-
   pass_google='ZXVbk,ZA=7!^g6s'
-  str_g,suggestion_g=test(pass_google)
-  z_google_res=zxcvbn(pass_google)
-
-  print('\nOWN')
-  print('Password: ', pass_str)
-  print('Strength: %.5f' %strength)
-  print('Suggestions: ', suggestion)
-
-  print('\nGoogle')
-  print('Password: ', pass_google)
-  print('Strength: %.5f' %str_g)
-  print('Suggestions: ', suggestion_g)
-
-
-  print("Own zxcvbn:")
-  pprint(z_res)
-  print("Google zxcvbn:")
-  pprint(z_google_res)
+  
+  if(not args.quiet):
+    analyze_password(pass_str)
+    analyze_password(pass_google)
+  else:
+    print(pass_str)
 
 
 

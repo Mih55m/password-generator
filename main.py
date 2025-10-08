@@ -53,6 +53,7 @@ def get_args():
   parser.add_argument('-w','--words',type=positive_int,default=2,help='The number of words used for generating the password(default 2)')
   parser.add_argument('-d','--digits',type=positive_int,default=4,help='The number of digits used for generating the password(default 4)')
   parser.add_argument('-s','--specials',type=positive_int,default=3,help='The number of special characters used for generating the password(default 3)')
+  parser.add_argument('-i','--iterations',type=positive_int,default=1,help='Determines how many passwords to generate')
   parser.add_argument('-q','--quiet',action='store_true',default=False,help='Disables the strength analyzer part of the tool and only shows the generated password')
 
   return parser.parse_args()
@@ -69,20 +70,32 @@ def analyze_password(password):
   print('Zxcvbn strength:')
   pprint(z_res)
 
+def analyze_batch(passwords):
+  for p in passwords:
+    analyze_password(p)
 
 def main():
   
   args=get_args()
-  pass_str=create_password(args.words,args.digits,args.specials)
-
   pass_google='ZXVbk,ZA=7!^g6s'
-  
-  if(not args.quiet):
-    analyze_password(pass_str)
-    analyze_password(pass_google)
-  else:
-    print(pass_str)
 
+  if(args.iterations!=1):
+    passwords=[]
+    for i in range(args.iterations):
+      pass_str=create_password(args.words,args.digits,args.specials)
+      passwords.append(pass_str)
+    if(not args.quiet):
+      analyze_password(pass_google)
+      analyze_batch(passwords)
+    else:
+      print(passwords)
+  else:
+    pass_str=create_password(args.words,args.digits,args.specials)
+    if(not args.quiet):
+      analyze_password(pass_str)
+      analyze_password(pass_google)
+    else:
+      print(pass_str)
 
 
 if __name__=='__main__':
